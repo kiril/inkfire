@@ -1,0 +1,15 @@
+
+  <div>
+    <form action="/batch" method="post">
+      <input name="name" type="text" placeholder="batch name"/>
+      <button type="submit" class="btn btn-secondary small">Create Batch</button>
+    </form>
+  </div>
+
+  {{#each batches}}
+    <div class="">
+      <a href="/batch/{{_id}}">{{name}}</a>
+      &middot; {{status}}
+      &middot; {{#if training_count}}{{training_count}}{{else}}0{{/if}}
+    </div>
+  {{/each}}

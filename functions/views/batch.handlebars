@@ -1,0 +1,37 @@
+
+  <div class="small text-secondary">{{batch._id}}</div>
+  <hr/>
+
+  <h5>{{batch.name}}</h5>
+
+  <div>Status: {{batch.status}}</div>
+  <div>
+    Training Count: {{sample_count}}
+    <form action="/batch/{{batch._id}}" method="post" class="inline-block">
+      <input class="inline-block" name="sample_count" value="{{sample_count}}"></input>
+      <button class="btn btn-primary btn-sm">update</button>
+    </form>
+  </div>
+  <div>
+    Test Count: {{test_count}}
+  </div>
+  <div>
+    Pool Count: {{pool_count}}
+    <form action="/batch/{{batch._id}}" method="post" class="inline-block">
+      <input class="inline-block" name="pool_count" value="{{pool_count}}"></input>
+      <button class="btn btn-primary btn-sm">update</button>
+    </form>
+  </div>
+
+  <hr/>
+
+  <h6>Sessions</h6>
+  {{#each batch.sessions}}
+    <div>
+      {{#if results}}
+        <a href="/batch/{{...batch._id}}/{{id}}">{{when}}</a> {{results.loss}} loss <b>&middot;</b> {{results.accuracy}} accuracy
+      {{else}}
+        In Progress
+      {{/if}}
+    </div>
+  {{/each}}

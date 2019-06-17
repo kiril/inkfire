@@ -65,3 +65,5 @@ node_modules/
 .env
 *~
 *.pyc
+public/static/corpus
+.DS_Store

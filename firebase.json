@@ -20,8 +20,8 @@
       "**/node_modules/**"
     ],
       "rewrites": [{
-          "source": "/hello",
-          "function": "helloWorld"
+          "source": "**",
+          "function": "app"
       }]
   },
   "storage": {

@@ -1,0 +1,21 @@
+  <div class="small text-secondary">{{batch._id}} &middot; {{session.id}}</div>
+  <hr/>
+
+  <h5>{{batch.name}}, {{session.datetime}}</h5>
+
+  <h6>Predictions</h6>
+  {{#each predictions}}
+    <div class="my-2 p-2 rounded" style="border:thin solid #888">
+      <div class="float-left">
+        <img class="rounded" width="100" src="https://storage.googleapis.com/inkstory/corpus/{{image_id}}.jpg">
+      </div>
+      <div class="float-left pl-3">
+        <a href="/image/{{image_id}}">{{image_id}}</a>
+        <br/>
+        {{#each scores }}
+          <div class="pl-2 mb-1 small{{#if strong}} font-weight-bold{{/if}}">{{tag}} = {{score}}%</div>
+        {{/each}}
+      </div>
+      <div class="clearfix"></div>
+    </div>
+  {{/each}}

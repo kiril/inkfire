@@ -1,0 +1,31 @@
+
+  <h4 class="mb-5">All Styles & Motifs In Use</h4>
+
+  <hr/>
+
+  <div class="container">
+    <div class="row">
+      <div class="col">
+        <h5>Styles</h5>
+      </div>
+      <div class="col">
+        <h5>Motifs</h5>
+      </div>
+    </div>
+    <div class="row">
+      <div class="col">
+        {{#each styles}}
+          <div>
+            <a href="/classify?style={{name}}">{{name}} ({{count}})</a>
+          </div>
+        {{/each}}
+      </div>
+      <div class="col">
+        {{#each motifs}}
+          <div>
+            <a href="/classify?motif={{name}}">{{name}} ({{count}})</a>
+          </div>
+        {{/each}}
+      </div>
+    </div>
+  </div>
