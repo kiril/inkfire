@@ -69,7 +69,7 @@ app.get('/batch/:batchId', (request, response) => {
                 if ( data.sessions ) {
                     data.sessions.forEach(session => {
                         if ( session.datetime ) {
-                            session.when = moment(session.datetime).format("dddd MM/DD/YY, HH:mm");
+                            session.when = moment(session.datetime.toDate()).format("dddd MM/DD/YY, HH:mm");
                         }
                     });
                 }
@@ -99,6 +99,11 @@ app.get('/batch/:batchId/:sessionId', (request, response) => {
             batch.sessions.forEach((session:any) => {
                 if ( session.id == sessionId ) {
                     context['session'] = session;
+                    if ( session.datetime ) {
+                        console.log("datetime=", session.datetime);
+                        session.when = moment(session.datetime.toDate()).format("dddd MM/DD/YY, HH:mm");
+                    }
+
                 }
             });
 
