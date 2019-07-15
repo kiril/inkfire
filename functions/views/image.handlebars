@@ -11,8 +11,8 @@
 
   <h4 class="mb-5">{{image._id}}</h4>
 
-  <div class="bg-dark px-1 py-4 float-left rounded-lg w-25" style="text-align:center;">
-    <img class="rounded-lg" width="200" src="https://storage.googleapis.com/inkstory/corpus/{{image._id}}.jpg">
+  <div class="bg-dark px-1 py-4 float-left w-50" style="text-align:center; border-radius:60px;">
+    <img class="pl-1" style="border-radius:50px;" width="460" src="https://storage.googleapis.com/tattoo_images/{{image._id}}.jpg">
     <br/>
     {{#if image.deleted}}
       <button id="restore-button" class="btn btn-danger mx-auto mt-4">RESTORE</button>
@@ -23,30 +23,16 @@
     <button id="toggle-instructive-button" data-instructive="{{image.instructive}}" class="btn btn-secondary mx-auto mt-4">{{#if image.instructive}}UN{{/if}}MARK INSTRUCTIVE</button>
   </div>
 
-  <div class="float-right w-75">
-    <div class="float-left w-50 pl-3">
+  <div class="float-right w-50">
+    <div class="pl-3">
       <h5>styles</h5>
-      <div id="new-style">
-        <input id="custom-style" class="d-inline w-75" type="text" autocomplete="off"></input>
+      <div id="new-style" class="mb-2">
+        <input id="custom-style" class="d-inline w-100 rounded-lg" type="text" autocomplete="off"></input>
       </div>
-      <div id="styles" style="columns:2">
+      <div id="styles" class="small">
         {{#each styles}}
-          <div class="style-outer">
-            <input class="style" type="checkbox" name="{{this}}" {{#ifstyle ...image this}} checked="checked"{{/ifstyle}}></input> <span class="tag">{{this}}</span>
-          </div>
-        {{/each}}
-      </div>
-    </div>
-
-    <div class="float-left w-50 pl-3 border-left border-secondary">
-      <h5>motifs</h5>
-      <div id="new-motif">
-        <input id="custom-motif" class="d-inline w-75" type="text" autocomplete="off"></input>
-      </div>
-      <div id="motifs" style="columns:2">
-        {{#each  motifs}}
-          <div class="motif-outer">
-            <input class="motif" type="checkbox" name="{{this}}" {{#ifmotif ...image this }} checked="checked"{{/ifmotif}}></input> <span class="tag">{{this}}</span>
+          <div class="style-outer float-left" style="width:30%">
+            <input class="style ml-1" type="checkbox" name="{{this}}" {{#ifstyle ...image this}} checked="checked"{{/ifstyle}}></input> <span class="tag">{{this}}</span>
           </div>
         {{/each}}
       </div>
