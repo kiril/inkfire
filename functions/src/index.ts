@@ -22,13 +22,14 @@ const FieldValue = admin.firestore.FieldValue;
 //   databaseURL: 'https://inkstory.firebaseio.com'
 // });
 
-const serviceAccount = require('/Users/kiril/.firebase-inkstory-5bbf3a8df360.json');
 
-admin.initializeApp({
-  credential: admin.credential.cert(serviceAccount)
-});
+//const serviceAccount = require('/Users/kiril/.firebase-inkstory-5bbf3a8df360.json');
 
-//admin.initializeApp(functions.config().firebase);
+//admin.initializeApp({
+//  credential: admin.credential.cert(serviceAccount)
+//});
+
+admin.initializeApp(functions.config().firebase);
 
 const db = admin.firestore();
 const app = express();
