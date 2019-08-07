@@ -273,7 +273,7 @@ function shuffle(a) {
 }
 
 app.get('/', (request, response) => {
-    return response.send("Main");
+    return response.render('home');
 });
 
 app.get('/train', (request, response) => {
