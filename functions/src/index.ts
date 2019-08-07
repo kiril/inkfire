@@ -217,7 +217,7 @@ const annotateBatch = (batch: Batch) => {
 
             const imageTags = p.tags || [];
             const isClassified  = imageTags.length > 0 ? true : false;
-            const isImageTagged = function(t) { return imageTags.indexOf(t) != -1; }
+            const isImageTagged = function(t) { return imageTags.indexOf(t) > -1; }
 
             const meaningfulScores = [];
             const threshold = imageTags.length > 0 ? 0.4 : 0.2;
@@ -237,7 +237,7 @@ const annotateBatch = (batch: Batch) => {
                 s.probable = s.score >= 50 && s.score < 75;
                 s.positive = s.score >= 75;
 
-                if ( imageTags.indexOf(s.tag) != -1 ) {
+                if ( imageTags.indexOf(s.tag) > -1 ) {
                     s.correct = true;
                 } else if ( isClassified ) {
                     s.incorrect = true;
@@ -253,7 +253,7 @@ const annotateBatch = (batch: Batch) => {
 
 
             imageTags.forEach(s => {
-                if ( foundStyles.indexOf(s) == -1 ) {
+                if ( foundStyles.indexOf(s) === -1 ) {
                     p.scores.push({tag: s, score: 0, correct: true, unlikely: true, weightClass: 'font-weight-normal', color: 'text-orange'});
                 }
             });
@@ -464,7 +464,7 @@ app.get('/style/:style/review', (request, response) => {
                         Object.keys(associations).forEach(style => {
                             if ( styles.indexOf(style) > -1 ) {
                                 associations[style].forEach(other => {
-                                    if ( styles.indexOf(other) == -1 && image.missingStyles.indexOf(other) == -1 ) {
+                                    if ( styles.indexOf(other) === -1 && image.missingStyles.indexOf(other) === -1 ) {
                                         image.missingStyles.push(other);
                                     }
                                 });
@@ -472,7 +472,7 @@ app.get('/style/:style/review', (request, response) => {
                         });
 
                         Object.keys(dissociations).forEach(style => {
-                            if ( styles.indexOf(style) == -1 ) {
+                            if ( styles.indexOf(style) === -1 ) {
                                 return;
                             }
                             dissociations[style].forEach(other => {
@@ -613,7 +613,7 @@ app.post('/image/:imageId', (request, response) => {
     } else if ( json.action === 'complete' ) {
         updates.status = 'classified';
     } else if ( json.action === 'mark' ) {
-        updates.instructive = (json.instructive == "true");
+        updates.instructive = (json.instructive === true);
     }
 
     return db.collection('corpus').doc(imageId).update(updates)
@@ -634,7 +634,7 @@ app.delete('/batch/:batchId/predictions/:imageId', (request, response) => {
             const batch = doc.data();
             const predictions = batch.predictions || [];
             predictions.forEach(p => {
-                if ( p.image_id == imageId ) {
+                if ( p.image_id === imageId ) {
                     p.deleted = true;
                 }
             });
@@ -657,11 +657,11 @@ app.put('/batch/:batchId/predictions/:imageId/tags/:tag', (request, response) =>
             const batch = doc.data();
             const predictions = batch.predictions || [];
             predictions.forEach(p => {
-                if ( p.image_id == imageId ) {
+                if ( p.image_id === imageId ) {
                     let tags = p.tags || [];
                     if ( !tags ) {
                         tags = [tag];
-                    } else if ( tags.indexOf(tag) == -1 ) {
+                    } else if ( tags.indexOf(tag) === -1 ) {
                         tags.push(tag);
                     }
                     p.tags = tags;
@@ -701,7 +701,7 @@ app.delete('/batch/:batchId/predictions/:imageId/tags/:tag', (request, response)
             const predictions = batch.predictions || [];
             let found = false;
             predictions.forEach(p => {
-                if ( p.image_id == imageId ) {
+                if ( p.image_id === imageId ) {
                     const tags = p.tags || [];
                     if ( tags && tags.indexOf(tag) > -1 ) {
                         tags.splice(tags.indexOf(tag), 1);
@@ -826,7 +826,7 @@ app.post('/style/:style', (request, response) => {
                 return eachThen(snapshot, doc => {
                     const image = doc.data();
                     const styles = image.styles || [];
-                    if ( styles.indexOf(addTag) == -1 ) {
+                    if ( styles.indexOf(addTag) === -1 ) {
                         count += 1;
                         const imageRef = db.collection('corpus').doc(doc.id)
                         return imageRef.update({styles: FieldValue.arrayUnion(addTag)});
@@ -944,7 +944,7 @@ app.get('/image/:imageId', (request, response) => {
                     .then(doc => {
                         const batch = doc.data();
                         (batch.predictions || []).forEach(pred => {
-                            if ( pred.image_id == request.params.imageId ) {
+                            if ( pred.image_id === request.params.imageId ) {
                                 context.image.predictions = {};
                                 pred.scores.forEach(score => {
                                     context.image.predictions[score.tag] = score.score;
