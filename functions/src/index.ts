@@ -109,9 +109,67 @@ app.use(express.json());
 app.use(bodyParser.urlencoded({extended: true}));
 app.use(cors({origin: true}));
 
-const annotateImage = (image) => {
-    image['style'] = {};
-    image['tags'] = {};
+interface BoolDict { [key: string]: boolean; }
+interface NumberDict { [key: string]: number; }
+
+interface Context {
+    [key: string]: any;
+}
+
+interface Image {
+    id: string;
+    status: string;
+    style?: BoolDict;
+    tags?: BoolDict;
+    styles?: string[];
+}
+
+interface Score {
+    tag: string;
+    score: number;
+
+    unlikely?: boolean;
+    possible?: boolean;
+    probable?: boolean;
+    positive?: boolean;
+    correct?: boolean;
+    incorrect?: boolean;
+    contrarian?: boolean;
+
+    weightClass?: string;
+    color?: string;
+}
+
+interface Prediction {
+    scores: Score[];
+    index?: number;
+
+    [key: string]: any;
+}
+
+interface Results {
+    backtest?: Prediction[];
+    predictions?: Prediction[];
+}
+
+interface Batch {
+    when?: string;
+    stamp?: string;
+
+    predictions?: Prediction[];
+    results?: Results;
+    stats?: NumberDict;
+
+    training_image_ids?: string[]
+    pool_image_ids?: string[]
+    test_image_ids?: string[]
+
+    [key: string]: any;
+}
+
+const annotateImage = (image: Image) => {
+    image.style = {};
+    image.tags = {};
     image[image.status] = true;
 
     const tags = image.styles || [];
@@ -122,14 +180,14 @@ const annotateImage = (image) => {
     });
 };
 
-const annotateBatch = (batch) => {
+const annotateBatch = (batch: Batch) => {
     if ( batch.start ) {
         batch.when = batch.when || moment(batch.start.toDate()).format("ddd MM/DD, h:mma");
         batch.stamp = batch.stamp || moment(batch.start.toDate()).format("YY/MM/DD.HH:mm");
     }
 
     if ( batch.results && batch.results.backtest ) {
-        const meaningfulTags = [];
+        const meaningfulTags: Prediction[] = [];
         batch.results.backtest.forEach(function(tag) {
             if ( tag.results.correct + tag.results.incorrect >= 5 ) {
                 meaningfulTags.push(tag);
@@ -259,7 +317,7 @@ app.get('/train', (request, response) => {
 
 app.get('/batch/:batchId', (request, response) => {
     const batchId = request.params.batchId;
-    const context = {};
+    const context: Context = {};
     return db.collection('batch').doc(batchId).get()
         .then(doc => {
             if ( !doc.exists ) {
@@ -840,7 +898,7 @@ app.get('/classify', (request, response) => {
 app.get('/js/image/:imageId', (request, response) => {
     return db.collection('corpus').doc(request.params.imageId).get()
         .then(doc => {
-            const image = doc.data();
+            const image: Image = doc.data() as Image;
             image.id = doc.id;
             annotateImage(image);
             response.json({image: image});
@@ -864,8 +922,8 @@ app.get('/image/:imageId', (request, response) => {
         .doc(request.params.imageId)
         .get()
         .then(doc => {
-            const image = doc.data() || {};
-            image._id = doc.id;
+            const image: Image = doc.data() as Image || {} as Image;
+            image['_id'] = doc.id;
             image.id = doc.id;
             annotateImage(image);
             context.image = image;
