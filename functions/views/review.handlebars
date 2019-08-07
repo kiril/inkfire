@@ -1,0 +1,46 @@
+<script src="/static/review.js"></script>
+  <link rel="stylesheet" href="/static/review.css">
+<script src="/static/page/review.js"></script>
+
+<h2 class="my-3">review <span style="inline-block" class="px-2 border">{{style}}</span> images</h2>
+
+<div style="display:none;" id="existing-styles">
+  {{#each styles}}
+    <span class="{{this}} existing-style" data-id="{{this}}">{{this}}</span>
+  {{/each}}
+</div>
+
+<div id="images">
+  {{#each images}}
+    <div data-image-id="{{id}}" data-index="{{index}}" class="reviewable {{index}}">
+      <div class="float-left mr-3">
+        <a href="/image/{{id}}">
+        <img src="https://storage.googleapis.com/inkstory/corpus/{{id}}.jpg">
+        </a>
+      </div>
+
+      {{#each styles}}
+        <div data-name="{{this}}" class="tag font-weight-medium text-dark">
+          <span class="name">{{this}}{{#if correct}}<i class="fal fa-check-circle text-success text-tiny ml-1"></i>{{/if}}</span>
+        </div>
+      {{/each}}
+
+      {{#each missingStyles}}
+        <div data-name="{{this}}" class="tag font-weight-normal text-dark related">
+          <span class="name">{{this}}</span>
+        </div>
+      {{/each}}
+
+      <div class="clearfix sentinal"></div>
+      <div class="px-1 mb-1 mt-3 tagger w-100">
+        <input list="existing-style" class="custom small w-100 {{index}}">
+      </div>
+    </div>
+  {{/each}}
+</div>
+
+<datalist id="existing-style">
+{{#each styles}}
+  <option value="{{this}}">
+{{/each}}
+</datalist>

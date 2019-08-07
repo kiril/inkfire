@@ -1,38 +1,49 @@
   <script src="/static/page/classify.js"></script>
+  <link rel="stylesheet" href="/static/page/image.css">
 
-  <div class="small text-secondary">
+  <div class="small text-secondary mb-3">
     {{#if motif }}
-      browsing <span class="text-primary">{{motif}}</span> motif
-    {{else if style}}
-      browsing <span class="text-primary">{{style}}</span> style
+      classifying <a href="/browse">{{motif}}</a> motif
+      {{else if style}}
+      classifying <a href="/style/{{style}}">{{style}}</a> style
+      {{else if batch}}
+      classifying batch <a href="/batch/{{batch}}">{{batch}}</a>
     {{/if}}
   </div>
-  <hr/>
 
-  <h4 class="mb-5">{{image._id}}</h4>
+  <h4 class="mb-1">{{image._id}}</h4>
+  <div id="status" class="text-uppercase font-weight-bold mb-4{{#if image.classified}} text-info{{/if}}{{#if image.deleted}} text-danger{{/if}}{{#if image.unclassified}} text-secondary{{/if}}">{{image.status}}</div>
 
-  <div class="bg-dark px-1 py-4 float-left w-50" style="text-align:center; border-radius:60px;">
-    <img class="pl-1" style="border-radius:50px;" width="460" src="https://storage.googleapis.com/tattoo_images/{{image._id}}.jpg">
-    <br/>
-    {{#if image.deleted}}
-      <button id="restore-button" class="btn btn-danger mx-auto mt-4">RESTORE</button>
-    {{else}}
-      <button id="delete-button" class="btn btn-danger mx-auto mt-4">DELETE</button>
-    {{/if}}
-    <button id="complete-button" class="btn btn-primary mx-auto mt-4">COMPLETE</button>
-    <button id="toggle-instructive-button" data-instructive="{{image.instructive}}" class="btn btn-secondary mx-auto mt-4">{{#if image.instructive}}UN{{/if}}MARK INSTRUCTIVE</button>
+  <div class="bg-dark px-1 py-3 float-left w-50" style="text-align:center; border-radius:75px;">
+    <img class="pl-1" style="border-radius:60px;" width="460" src="https://storage.googleapis.com/tattoo_images/{{image._id}}.jpg">
+    <div class="mt-3 mb-3">
+      {{#if image.deleted}}
+        <button id="restore-button" class="btn btn-danger mx-auto">RESTORE</button>
+      {{else}}
+        <button id="delete-button" class="btn btn-danger mx-auto">DELETE</button>
+      {{/if}}
+      {{#if image.unclassified}}
+        <button id="complete-button" class="btn btn-primary mx-auto">COMPLETE</button>
+      {{else}}
+        <button id="restore-button" class="btn btn-info mx-auto">UNCLASSIFY</button>
+      {{/if}}
+      <button id="toggle-instructive-button" data-instructive="{{image.instructive}}" class="btn btn-secondary mx-auto">{{#if image.instructive}}UN{{/if}}MARK</button>
+    </div>
   </div>
 
   <div class="float-right w-50">
     <div class="pl-3">
-      <h5>styles</h5>
       <div id="new-style" class="mb-2">
         <input id="custom-style" class="d-inline w-100 rounded-lg" type="text" autocomplete="off"></input>
       </div>
       <div id="styles" class="small">
         {{#each styles}}
           <div class="style-outer float-left" style="width:30%">
-            <input class="style ml-1" type="checkbox" name="{{this}}" {{#ifstyle ...image this}} checked="checked"{{/ifstyle}}></input> <span class="tag">{{this}}</span>
+            <input class="style ml-1" type="checkbox" {{#if name}} data-alias="{{name}}"{{/if}} name="{{id}}" {{#ifstyle ...image id}} checked="checked"{{/ifstyle}}>
+            <span class="tag{{#ifpredicted ...image id}} predicted{{/ifpredicted}}{{#ifcontemplated ...image id}} contemplated{{/ifcontemplated}}">{{#if name}}{{name}}{{else}}{{id}}{{/if}}</span>
+              {{#if count}}
+                <span class="count small text-muted">({{count}})</span>
+              {{/if}}
           </div>
         {{/each}}
       </div>

@@ -3,22 +3,52 @@ function getId() {
     return $("#image-id").data("id");
 }
 
-function tag(category, id, addOrRemove, onComplete) {
+function tag(style, addOrRemove, onComplete) {
+    console.log((addOrRemove?"":"un-")+"tag " + style);
+    var styles = [style];
+
+    const styleMappings = {
+        'american': ['illustrative'],
+        'neo-american': ['illustrative'],
+        'japanese': ['illustrative'],
+        'neo-japanese': ['illustrative'],
+        'bookish': ['illustrative', 'fine', 'sepia'],
+        'mambo': ['heavy', 'color', 'blackwork', 'flat', 'illustrative'],
+        'new school': ['illustrative', 'color', 'cartoon'],
+        'hipster': ['blackwork', 'illustrative', 'heavy'],
+        'anime': ['illustrative'],
+        'manga': ['illustrative'],
+        'engraving': ['illustrative'],
+        'photorealistic': ['realistic'],
+        'diamond': ['frame'],
+        'triangle': ['frame'],
+        'square': ['frame'],
+        'cartoon': ['illustrative'],
+        'french': ['linework', 'illustrative']
+    };
+
+    if ( addOrRemove ) {
+        Object.keys(styleMappings).forEach(function(aStyle) {
+            if ( style == aStyle ) {
+                styleMappings[aStyle].forEach(function(additional) {
+                    styles.push(additional);
+                });
+            }
+        });
+    }
 
     var data = {};
-    data["category"] = category;
-    data["id"] = id;
-    data["tag"] = addOrRemove;
+    data[addOrRemove ? "add" : "remove"] = styles;
 
     $.ajax({
         type: "POST",
         contentType: "application/json; charset=utf-8",
-        url: '/image/' + getId() + '/classify',
+        url: '/image/' + getId() + '/classify/style',
         data: JSON.stringify(data),
         dataType: "json",
         success: function(data) {
             if ( onComplete ) {
-                onComplete();
+                onComplete(styles);
             }
         }
     });
@@ -26,48 +56,45 @@ function tag(category, id, addOrRemove, onComplete) {
 
 function toggle(action) {
     var $el = $(action.target);
-    var isStyle = $el.hasClass("style");
     var name = $el.attr("name");
     var checked = $el[0].checked;
     var imageId = getId();
 
-    var category = isStyle ? "style" : "motif";
-
-    tag(category, name, checked)
+    tag(name, checked)
 }
 
 function goToNext() {
     var params = getUrlVars();
-    var to = '/classify';
-    if ( params['motif'] ) {
-        to += '?motif='+params['motif'];
-    } else if ( params['style'] ) {
-        to += '?style='+params['style'];
+    var to = '';
+    if ( params.batch ) {
+        to = '/batch/' + params.batch + '/classify';
+    } else {
+        to = '/classify';
+        if ( params['motif'] ) {
+            to += '?motif='+params['motif'];
+        } else if ( params['style'] ) {
+            to += '?style='+params['style'];
+        } else if ( params['status'] ) {
+            to += '?status='+params['status'];
+        }
     }
     window.location.href = to;
 }
 
 function deleteImage() {
-    maybe("Are you sure you want to mark delted?",
-          function () {
-              $.ajax({
-                  type: "DELETE",
-                  url: '/image/' + getId(),
-                  success: goToNext
-              })
-          })
+    $.ajax({
+        type: "DELETE",
+        url: '/image/' + getId(),
+        success: goToNext
+    });
 }
 
 function restoreImage() {
-    maybe("Restore image?",
-          function() {
-              $.post('/image/' + getId(),
-                     {action: 'restore'},
-                     function() {
-                         window.location.reload();
-                     }
-                    );
-          });
+    $.post('/image/' + getId(),
+           {action: 'restore'},
+           function() {
+               updateStatus('unclassified');
+           });
 }
 
 function markInstructive(yesOrNo) {
@@ -104,29 +131,30 @@ function update(addOrRemove) {
         return;
     }
 
-    console.log("adding ", name, addOrRemove);
-
     var $existing = $('.style[name="'+name+'"]');
 
     if ( $existing.length == 1 ) {
         var isChecked = $existing[0].checked;
         if ( isChecked ) {
-            $existing.parent('.style-outer').find('.tag').removeClass('font-weight-bold');
+            $existing.parent('.style-outer').find('.tag').removeClass('text-primary');
         } else {
-            $existing.parent('.style-outer').find('.tag').addClass('font-weight-bold');
+            $existing.parent('.style-outer').find('.tag').addClass('text-primary');
         }
     }
 
-    tag("style", name, addOrRemove, function() {
-        if ( $existing.length > 0 ) {
-            $existing.prop("checked", addOrRemove);
-            sortStyles();
+    tag(name, addOrRemove, function(styles) {
+        styles.forEach(function(style) {
+            $('.style[name="'+style+'"]').prop("checked", addOrRemove);
+        });
 
-        } else if ( addOrRemove ) {
+        if ( $existing.length == 0 ) {
             var $new = $($(".style-outer")[0]).clone();
-            $new.find("input").attr("name", name).attr("checked", true);
+            $new.find("input").attr("name", name).attr("checked", true).data("alias", "");
             $new.find(".tag").text(name);
             $("#styles").append($new);
+        }
+
+        if ( !$("#custom-style").val().trim() ) {
             sortStyles();
         }
     });
@@ -134,7 +162,28 @@ function update(addOrRemove) {
     reset();
 }
 
+function updateStatus(status) {
+    var $status = $("#status");
+    $status.text(status);
+    if ( status == 'complete' ) {
+        $status.removeClass('text-danger text-secondary').addClass('text-info');
+    } else if ( status == 'deleted' ) {
+        $status.removeClass('text-secondary text-info').addClass('text-danger');
+    } else if ( status == 'unclassified' ) {
+        $status.removeClass('text-info text-danger').addClass('text-secondary');
+    }
+}
+
 function markComplete() {
+    $.post('/image/' + getId(),
+           {action: 'complete'},
+           function() {
+               updateStatus('complete');
+           }
+          )
+}
+
+function markCompleteAndContinue() {
     $.post('/image/' + getId(),
            {action: 'complete'},
            goToNext);
@@ -151,12 +200,6 @@ function getUrlVars()
         vars[hash[0]] = hash[1];
     }
     return vars;
-}
-
-function maybe(msg, onConfirm) {
-    if ( confirm(msg) ) {
-        onConfirm()
-    }
 }
 
 var KEY_ENTER = 13;
@@ -176,14 +219,14 @@ function keydown(event) {
     var found = [];
     $(".style-outer").each(function(i) {
         var $el = $(this);
-        var name = $el.find(".style").attr("name");
+        var name = $el.find(".style").data('alias') || $el.find(".style").attr("name");
         if ( name.indexOf(text) != -1 ) {
             found.push($el);
         }
     });
 
     if ( found.length == 1 && !event.ctrlKey ) {
-        var autoCompleteName = found[0].find(".style").attr("name");
+        var autoCompleteName = found[0].find(".style").data("alias") || found[0].find(".style").attr("name");
         if ( autoCompleteName.length > text.length ) {
             $(event.target).val(autoCompleteName);
             filterDisplayed(autoCompleteName);
@@ -203,7 +246,7 @@ function autocompleteFirst(event) {
     var $best = $(".style-outer:first");
 
     if ( $best.is(":visible") ) {
-        var name = $best.find(".style").attr("name");
+        var name = $best.find('.style').data('alias') || $best.find(".style").attr("name");
         $(event.target).val(name);
         event.shiftKey ? remove() : add();
     }
@@ -230,44 +273,6 @@ function keyup(event) {
     }
 }
 
-function commonPrefix(a, b) {
-    if ( a.charAt(0) != b.charAt(0) ) {
-        return null;
-    }
-
-    if ( a.startsWith(b) ) {
-        return b;
-    }
-
-    if ( b.startsWith(a) ) {
-        return a;
-    }
-
-    var len = Math.min(a.length, b.length);
-    var prefix = '';
-    for ( var i = 0; i < len; i++ ) {
-        var ca = a.charAt(i);
-        var cb = b.charAt(i);
-        if ( ca == cb ) {
-            prefix += ca;
-        } else {
-            break;
-        }
-    }
-    return prefix;
-}
-
-function sortaMatches(text, search) {
-    var prefix = commonPrefix(text, search);
-    if ( !prefix || prefix.length < 2 ) {
-        return false;
-    }
-    var searchRemainder = search.substring(prefix.length);
-    var textRemainder = text.substring(prefix.length);
-    return textRemainder.indexOf(' ' + searchRemainder) != -1 ||
-        textRemainder.indexOf('-' + searchRemainder) != -1;
-}
-
 function filterDisplayed(text) {
     if ( !text || text.trim().length == 0 ) {
         reset();
@@ -285,8 +290,8 @@ function filterDisplayed(text) {
         .remove();
 
     $elements.sort(function($a, $b) {
-        var aName = $a.find(".style").attr("name");
-        var bName = $b.find(".style").attr("name");
+        var aName = $a.find(".style").data("alias") || $a.find(".style").attr("name");
+        var bName = $b.find(".style").data("alias") || $b.find(".style").attr("name");
 
         if ( text == aName ) {
             return -1;
@@ -337,7 +342,7 @@ function filterDisplayed(text) {
     $elements.forEach(function($el) {
         var isPrimary = $el === $elements[0];
 
-        var name = $el.find('.style').attr('name');
+        var name = $el.find('.style').data('alias') || $el.find('.style').attr('name');
         var matchIndex = name.indexOf(text);
         if ( matchIndex != -1 ) {
             var beforeMatch = name.substring(0, matchIndex);
@@ -370,7 +375,8 @@ function sortStyles() {
         .removeClass('bg-primary text-white')
         .each(function(i) {
             var $el = $(this);
-            $el.find(".tag").text($el.find(".style").attr("name"));
+            var name = $el.find(".style").data("alias") || $el.find(".style").attr("name");
+            $el.find(".tag").text(name);
             $elements.push($el);
         })
         .remove();
@@ -383,6 +389,25 @@ function sortStyles() {
         } else if ( bIsChecked && !aIsChecked ) {
             return 1;
         }
+
+        var aIsPredicted = $a.find('.tag.predicted').length > 0;
+        var bIsPredicted = $b.find('.tag.predicted').length > 0;
+        if ( aIsPredicted && !bIsPredicted ) {
+            return -1;
+        }
+        if ( bIsPredicted && !aIsPredicted ) {
+            return 1;
+        }
+
+        var aWasContemplated = $a.find('.tag.contemplated').length > 0;
+        var bWasContemplated = $b.find('.tag.contemplated').length > 0;
+        if ( aWasContemplated && !bWasContemplated ) {
+            return -1;
+        }
+        if ( bWasContemplated && !aWasContemplated ) {
+            return 1;
+        }
+
         return $a.find(".tag").text() < $b.find(".tag").text() ? -1 : 1;
     });
 
@@ -412,15 +437,19 @@ $(function() {
         .keyup(keyup)
         .blur(function() { setTimeout(function() { reset(); }, 200) });
 
+    var keyMappings = {c: markComplete,
+                       d: deleteImage,
+                       n: goToNext,
+                       y: markCompleteAndContinue,
+                       u: restoreImage,
+                       s: function() { $("#custom-style").focus() }};
+
     $(window).keydown(function(e) {
         if ( e.ctrlKey ) {
             e.preventDefault();
-            if ( e.key == 'y' ) {
-                markComplete();
-            } else if ( e.key == 'n' ) {
-                deleteImage();
-            } else if ( e.key == 's' ) {
-                $("#custom-style").focus();
+            var fun = keyMappings[e.key];
+            if ( fun ) {
+                fun();
             }
         }
     });

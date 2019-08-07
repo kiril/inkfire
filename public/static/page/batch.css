@@ -1,0 +1,13 @@
+.predicted.selected {
+    border-color: #5DADE2!important;
+    background-color: #EBF5FB  !important;
+
+}
+
+.predicted.deleted {
+    border-color: red!important;
+}
+
+.tag.correct {
+    text-decoration: underline ! important;
+}

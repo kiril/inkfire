@@ -3,3 +3,84 @@
     clear: both;
     display: table;
 }
+
+.font-weight-medium {
+    font-weight: 550;
+}
+
+.font-weight-heavy {
+    font-weight: 750;
+}
+
+.btn-inline {
+    padding-top: 3 ! important;
+    padding-bottom: 3 ! important;
+}
+
+.text-strikethrough {
+    text-decoration: line-through!important;
+}
+
+#content.flashing {
+    background-color: #F5B7B1 ! important;
+}
+
+.text-mono {
+    font-family: monospace ! important;
+}
+
+.text-tiny {
+    font-size: 50%;
+}
+
+.text-interesting {
+    color: #5DADE2;
+}
+
+.text-bizarre {
+    color: #8E44AD;
+}
+
+.text-orange {
+    color: #D35400;
+}
+
+.w-33 {
+    width: 33%;
+}
+
+.w-40 {
+    width:  40%;
+}
+
+.w-45 {
+    width:  45%;
+}
+
+.inline {
+    display: inline-block;
+}
+
+.display-inline {
+    display: inline;
+}
+
+.display-inline-block {
+    display: inline-block;
+}
+
+.display-none {
+    display: none;
+}
+
+.display-block {
+    display: block;
+}
+
+.position-fixed {
+    position: fixed;
+}
+
+.hide {
+    display: none;
+}

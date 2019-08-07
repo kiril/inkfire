@@ -1,31 +1,11 @@
+<a href="/classify?status=classified">reclassify</a>
 
-  <h4 class="mb-5">All Styles & Motifs In Use</h4>
-
-  <hr/>
-
-  <div class="container">
-    <div class="row">
-      <div class="col">
-        <h5>Styles</h5>
-      </div>
-      <div class="col">
-        <h5>Motifs</h5>
-      </div>
+<div class="mt-3">
+  {{#each styles}}
+    <div class="float-left rounded border py-1 px-2 mr-2 mb-2">
+      <a href="/style/{{name}}">{{name}}</a> ({{count}})
     </div>
-    <div class="row">
-      <div class="col">
-        {{#each styles}}
-          <div>
-            <a href="/classify?style={{name}}">{{name}} ({{count}})</a>
-          </div>
-        {{/each}}
-      </div>
-      <div class="col">
-        {{#each motifs}}
-          <div>
-            <a href="/classify?motif={{name}}">{{name}} ({{count}})</a>
-          </div>
-        {{/each}}
-      </div>
-    </div>
-  </div>
+  {{/each}}
+
+  <div class="clearfix"></div>
+</div>

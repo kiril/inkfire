@@ -1,0 +1,90 @@
+
+
+.reviewable {
+    padding: 4px;
+    margin-bottom: 10px;
+    border-radius: 8px;
+    border: thin solid #ddd;
+    background-color: #fff;
+}
+
+.reviewable .tag {
+    border-radius: 4px;
+    border: thin solid #aaa;
+    background-color: #eee;
+    font-size: 80%;
+    float: left;
+    padding: 2px 5px 2px 5px;
+    margin-bottom: 4px;
+    margin-right: 4px;
+}
+
+.reviewable .score {
+    font-family: monospace;
+}
+
+.reviewable .name {
+    float: left;
+    display: inline-block;
+    width: 130px;
+}
+
+.reviewable .tagger {
+    display: none;
+}
+
+.reviewable img {
+    border-radius: 8px;
+    width: 100px;
+    height: 100px;
+}
+
+.reviewable.selected {
+    border-color: #5DADE2;
+    background-color: #EBF5FB;
+}
+
+.reviewable.deleted {
+    border-color: #F1948A;
+    background-color: #FDEDEC;
+}
+
+.reviewable.selected.deleted {
+    border-color: #EC7063;
+    background-color: #FADBD8;
+}
+
+.reviewable.selected .tag {
+    background-color: #fff;
+}
+
+.reviewable.selected.editing {
+    background-color: #D6EAF8;
+}
+
+.reviewable.selected.editing.deleted {
+    border-color: #E74C3C;
+    background-color: #F5B7B1;
+}
+
+.reviewable.selected.editing .tag {
+    background-color: #eeee;
+}
+
+.reviewable.editing img {
+    width: 400px;
+    height: 400px;
+    border-radius: 50px;
+}
+
+.reviewable.editing .tagger {
+    display: block;
+}
+
+.tag.missing {
+    color: #A93226 ! important;
+}
+
+.tag.related {
+    color: #7D3C98 ! important;
+}

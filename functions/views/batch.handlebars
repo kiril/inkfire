@@ -1,37 +1,76 @@
+  <script src="/static/review.js"></script>
+  <link rel="stylesheet" href="/static/review.css">
+  <script src="/static/page/batch.js"></script>
+  <link rel="stylesheet" href="/static/page/batch.css">
 
-  <div class="small text-secondary">{{batch._id}}</div>
-  <hr/>
+  <div id="batchId" class="small text-secondary mb-3">{{batch._id}}</div>
 
-  <h5>{{batch.name}}</h5>
+  <div class="mb-3">
+    <div class="rounded border p-3 small float-left mr-3">
+      <div class="mb-1"><span class="text-mono font-weight-bold text-uppercase">{{batch.status}}</span></div>
+      <div>
+        <b>Training Count</b>: {{comma batch.stats.training}}
+      </div>
+      <div>
+        <b>Test Count</b>: {{comma batch.stats.test}}
+      </div>
+      <div>
+        <b>Pool Count</b>: {{comma batch.stats.pool}}
+      </div>
+    </div>
 
-  <div>Status: {{batch.status}}</div>
-  <div>
-    Training Count: {{sample_count}}
-    <form action="/batch/{{batch._id}}" method="post" class="inline-block">
-      <input class="inline-block" name="sample_count" value="{{sample_count}}"></input>
-      <button class="btn btn-primary btn-sm">update</button>
-    </form>
-  </div>
-  <div>
-    Test Count: {{test_count}}
-  </div>
-  <div>
-    Pool Count: {{pool_count}}
-    <form action="/batch/{{batch._id}}" method="post" class="inline-block">
-      <input class="inline-block" name="pool_count" value="{{pool_count}}"></input>
-      <button class="btn btn-primary btn-sm">update</button>
-    </form>
-  </div>
 
-  <hr/>
-
-  <h6>Sessions</h6>
-  {{#each batch.sessions}}
-    <div>
-      {{#if results}}
-        <a href="/batch/{{...batch._id}}/{{id}}">{{when}}</a> {{results.loss}} loss <b>&middot;</b> {{results.accuracy}} accuracy
-      {{else}}
-        In Progress
+    <div class="rounded border mr-3 p-3 float-left">
+      <h6 class="font-weight-bold">Results</h6>
+      {{#if batch.results}}
+        <div class="small"><span class="font-weight-bold">Loss:</span> <span class="text-mono">{{pct batch.results.loss 1}}</span></div>
+        <div class="small"><span class="font-weight-bold">Accuracy:</span> <span class="text-mono">{{pct batch.results.accuracy 1}}</span></div>
       {{/if}}
     </div>
+
+    <div class="rounded border mr-3 p-3 float-left">
+      <h6 class="font-weight-bold">Tags</h6>
+      <div style="overflow:scroll;max-height:70px;width:150px;" class="border bg-white p-1">
+        {{#each batch.results.backtest}}
+          <div class="small">
+            <div class="small inline w-75 font-weight-bold">{{tag}}</div> <span class="text-mono">{{pct results.accuracy 0}}</span>
+          </div>
+        {{/each}}
+      </div>
+    </div>
+    <div class="clearfix"></div>
+  </div>
+
+
+  <div id="predictions">
+    <h6><span id="prediction-type" class="font-weight-bold">Predictions</span> | <a data-on="Predictions" id="prediction-switch" href="#">Backtests</a></h6>
+
+    {{#each batch.predictions}}
+      <div data-index="{{index}}" data-image-id="{{image_id}}" class="reviewable {{type}} {{index}} {{#if deleted}} deleted{{/if}}">
+        <div class="float-left mr-3">
+          <a href="/image/{{image_id}}?batch={{...batch._id}}">
+          <img src="https://storage.googleapis.com/inkstory/corpus/{{image_id}}.jpg">
+          </a>
+        </div>
+
+        {{#each scores }}
+          <div data-name="{{tag}}" class="tag {{weightClass}} {{color}}">
+            <span class="name">{{tag}}{{#if correct}}<i class="fal fa-check-circle text-success text-tiny ml-1"></i>{{/if}}</span>
+              <span class="score">{{score}}%</span>
+          </div>
+        {{/each}}
+
+        <div class="clearfix sentinal"></div>
+        <div class="px-1 mb-1 mt-3 tagger w-100">
+          <input list="existing-style" class="custom small w-100 {{index}}">
+        </div>
+      </div>
+    {{/each}}
+    <div class="clearfix"></div>
+  </div>
+
+  <datalist id="existing-style">
+  {{#each styles}}
+    <option value="{{this}}">
   {{/each}}
+  </datalist>
