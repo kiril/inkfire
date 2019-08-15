@@ -1,0 +1,74 @@
+
+see:
+https://github.com/tensorflow/models/blob/master/research/object_detection/g3doc/running_pets.md
+
+
+GET PRETRAINED MODEL
+====================
+
+wget http://storage.googleapis.com/download.tensorflow.org/models/object_detection/faster_rcnn_resnet101_coco_11_06_2017.tar.gz
+tar -xvf faster_rcnn_resnet101_coco_11_06_2017.tar.gz
+gsutil cp faster_rcnn_resnet101_coco_11_06_2017/model.ckpt.* gs://${YOUR_GCS_BUCKET}/data/
+
+CONFIG
+======
+
+start with something from: object_detection/samples/configs
+    (faster_rcnn_resnet101_pets.config)
+
+# From tensorflow/models/research/
+
+# Edit the faster_rcnn_resnet101_pets.config template. Please note that there
+# are multiple places where PATH_TO_BE_CONFIGURED needs to be set.
+sed -i "s|PATH_TO_BE_CONFIGURED|"gs://${YOUR_GCS_BUCKET}"/data|g" \
+    object_detection/samples/configs/faster_rcnn_resnet101_pets.config
+
+# Copy edited template to cloud.
+gsutil cp object_detection/samples/configs/faster_rcnn_resnet101_pets.config \
+    gs://${YOUR_GCS_BUCKET}/data/faster_rcnn_resnet101_pets.config
+
+
+CHECK CLOUD STORAGE
+===================
+
++ ${YOUR_GCS_BUCKET}/
+  + data/
+    - faster_rcnn_resnet101_pets.config
+    - model.ckpt.index
+    - model.ckpt.meta
+    - model.ckpt.data-00000-of-00001
+    - pet_label_map.pbtxt
+    - pet_faces_train.record-*
+    - pet_faces_val.record-*
+
+PACKAGE TRAINING & EVAL JOBS
+============================
+
+To package the Tensorflow Object Detection code, run the following commands
+from the tensorflow/models/research/ directory:
+
+# From tensorflow/models/research/
+bash object_detection/dataset_tools/create_pycocotools_package.sh /tmp/pycocotools
+python setup.py sdist
+(cd slim && python setup.py sdist)
+
+RUN IT
+======
+
+
+# From tensorflow/models/research/
+gcloud ml-engine jobs submit training `whoami`_object_detection_pets_`date +%m_%d_%Y_%H_%M_%S` \
+    --runtime-version 1.12 \
+    --job-dir=gs://${YOUR_GCS_BUCKET}/model_dir \
+    --packages dist/object_detection-0.1.tar.gz,slim/dist/slim-0.1.tar.gz,/tmp/pycocotools/pycocotools-2.0.tar.gz \
+    --module-name object_detection.model_main \
+    --region us-central1 \
+    --config object_detection/samples/cloud/cloud.yml \
+    -- \
+    --model_dir=gs://${YOUR_GCS_BUCKET}/model_dir \
+    --pipeline_config_path=gs://${YOUR_GCS_BUCKET}/data/faster_rcnn_resnet101_pets.config
+
+MONITOR IT
+===========
+
+tensorboard --logdir=gs://${YOUR_GCS_BUCKET}/model_dir
