@@ -129,7 +129,6 @@ class Annotation(dict):
         size = self.image_size
         if size[0] > INTENDED_IMAGE_SIZE[0]:
             factor = float(INTENDED_IMAGE_SIZE[0]) / size[0]
-            print("scaling from {} to {} by {}".format(size, INTENDED_IMAGE_SIZE, factor))
             self.scale(factor)
 
     @property
@@ -139,7 +138,6 @@ class Annotation(dict):
     def sync_with_server(self):
         snap = self.doc.get()
         if not snap.exists:
-            self.upload_image()
             data = {'id': self.image_id,
                     'lastSeen': 0,
                     'status': 'unclassified'}
@@ -147,7 +145,7 @@ class Annotation(dict):
         else:
             data = snap.to_dict()
 
-        if not data.get('annotation') or True:
+        if not data.get('annotation'):
             self.upload_image()
             self.save_to_server()
         else:
@@ -158,8 +156,10 @@ class Annotation(dict):
             return
         image_id = self.image_id
         blob = image_bucket.blob('{}.jpg'.format(image_id))
-        with self.image_path.open(mode='rb') as local_file:
-            blob.upload_from_file(local_file, content_type='image/jpeg')
+        if not blob.exists():
+            print("uploading", self.image_path)
+            with self.image_path.open(mode='rb') as local_file:
+                blob.upload_from_file(local_file, content_type='image/jpeg')
         self['path'] = 'gs://{}/{}.jpg'.format(image_bucket.name, image_id)
 
     def save_to_server(self):
@@ -169,11 +169,8 @@ class Annotation(dict):
 if __name__ == '__main__':
     for xml_path in Path(INPUT_DIR).glob('*.xml'):
         annotation = Annotation(read_xml_at(xml_path))
-        print(json.dumps(annotation, indent=2))
         if annotation.image_size[0] > INTENDED_IMAGE_SIZE[0]:
+            print("resizing", annotation.image_path)
             annotation.scale_to_intended_size()
-            print(json.dumps(annotation, indent=2))
         annotation.sync_with_server()
-        print("---")
-        print(json.dumps(annotation, indent=2))
-        break
+
