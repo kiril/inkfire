@@ -1,5 +1,5 @@
 # sdk
-import os, io, json, sys
+import os, io, json, sys, random
 from pathlib import Path
 
 # Firebase & GCP
@@ -15,12 +15,14 @@ import tensorflow as tf
 from PIL import Image
 from lxml import etree
 from google.cloud import storage
+import contextlib2
 
 # local wacko...
 
 PATH_TO_OBJECT_DETECTION = '/Users/kiril/code/tensorflow/models/research/'
 sys.path.insert(0, PATH_TO_OBJECT_DETECTION)
 from object_detection.utils import dataset_util
+from object_detection.dataset_tools import tf_record_creation_util
 
 
 # read all XML files in:
@@ -96,6 +98,10 @@ class Annotation(dict):
         return Path(self['path'])
 
     @property
+    def local_path(self):
+        return Path('{}/{}'.format(INPUT_DIR, self['filename']))
+
+    @property
     def image_id(self):
         return self.image_path.stem
 
@@ -149,6 +155,7 @@ class Annotation(dict):
             self.upload_image()
             self.save_to_server()
         else:
+            self.update(data)
             self['path'] = 'gs://{}/{}.jpg'.format(image_bucket.name, self.image_id)
 
     def upload_image(self):
@@ -165,12 +172,87 @@ class Annotation(dict):
     def save_to_server(self):
         self.doc.update({'annotation': self})
 
+    def to_example(self):
+        width = int(self['size']['width'])
+        height = int(self['size']['height'])
+
+        #with tf.gfile.
+        with self.local_path.open(mode='rb') as f:
+            encoded_jpg = f.read()
+
+        xmins = []
+        ymins = []
+        xmaxs = []
+        ymaxs = []
+
+        classes_text = []
+        classes_int = []
+        poses = []
+        difficult = []
+        truncated = []
+        for obj in (self['object'] or []):
+            xmins.append(float(obj['bndbox']['xmin'])/width)
+            xmaxs.append(float(obj['bndbox']['xmax'])/width)
+            ymins.append(float(obj['bndbox']['ymin'])/height)
+            ymaxs.append(float(obj['bndbox']['ymax'])/height)
+            classes_text.append('tattoo'.encode('utf8'))
+            classes_int.append(1)
+            poses.append(obj['pose'].encode('utf8'))
+            difficult.append(int(obj['difficult']))
+            truncated.append(int(obj['truncated']))
+
+        feature_dict = {
+            'image/height': dataset_util.int64_feature(height),
+            'image/width': dataset_util.int64_feature(width),
+            'image/filename': dataset_util.bytes_feature(self['filename'].encode('utf8')),
+            'image/source_id': dataset_util.bytes_feature(self['filename'].encode('utf8')),
+            'image/key/sha256': dataset_util.bytes_feature(self.image_id.encode('utf8')),
+            'image/encoded': dataset_util.bytes_feature(encoded_jpg),
+            'image/format': dataset_util.bytes_feature('jpeg'.encode('utf8')),
+            'image/object/bbox/xmin': dataset_util.float_list_feature(xmins),
+            'image/object/bbox/xmax': dataset_util.float_list_feature(xmaxs),
+            'image/object/bbox/ymin': dataset_util.float_list_feature(ymins),
+            'image/object/bbox/ymax': dataset_util.float_list_feature(ymaxs),
+            'image/object/class/text': dataset_util.bytes_list_feature(classes_text),
+            'image/object/class/label': dataset_util.int64_list_feature(classes_int),
+            'image/object/difficult': dataset_util.int64_list_feature(difficult),
+            'image/object/truncated': dataset_util.int64_list_feature(truncated),
+            'image/object/view': dataset_util.bytes_list_feature(poses),
+        }
+
+        return tf.train.Example(features=tf.train.Features(feature=feature_dict))
+
 
 if __name__ == '__main__':
+    examples = []
     for xml_path in Path(INPUT_DIR).glob('*.xml'):
         annotation = Annotation(read_xml_at(xml_path))
         if annotation.image_size[0] > INTENDED_IMAGE_SIZE[0]:
-            print("resizing", annotation.image_path)
             annotation.scale_to_intended_size()
         annotation.sync_with_server()
+        examples.append(annotation.to_example())
 
+    num_shards = 5
+    num_examples = len(examples)
+    num_train = int(0.7 * num_examples)
+    random.seed(42)
+    random.shuffle(examples)
+    training_examples = examples[:num_train]
+    validate_examples = examples[num_train:]
+    batches = [{'suffix': 'train',
+                'examples': training_examples},
+               {'suffix': 'validate',
+                'examples': validate_examples}]
+    for batch in batches:
+        suffix = batch['suffix']
+        examples = batch['examples']
+        filename = 'tattoos-{}.record'.format(suffix)
+        output_file_path = '{}/{}'.format(INPUT_DIR, filename)
+
+        with contextlib2.ExitStack() as tf_record_close_stack:
+            output_tf_records = tf_record_creation_util.open_sharded_output_tfrecords(tf_record_close_stack,
+                                                                                      output_file_path,
+                                                                                      num_shards)
+            for idx, example in enumerate(examples):
+                shard = output_tf_records[idx % num_shards]
+                shard.write(example.SerializeToString())
