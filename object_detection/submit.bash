@@ -1,5 +1,12 @@
+
 GCS_BUCKET='tattoo-training'
 BASE_DIR='/Users/kiril/code/tensorflow/models/research'
+
+pushd $BASE_DIR
+bash object_detection/dataset_tools/create_pycocotools_package.sh /tmp/pycocotools/
+python setup.py sdist
+(cd slim && python setup.py sdist)
+popd
 
 gcloud ai-platform jobs submit training `whoami`_tattoo_detection_`date +%m_%d_%Y_%H_%M_%S` \
     --runtime-version 1.12 \
