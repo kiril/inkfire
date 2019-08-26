@@ -46,6 +46,9 @@
 .bg-story-powder {
   background-color: #F5B7B1 ! important;
 }
+.bg-pink-0 {
+  background-color: #FFF0F0 ! important;
+}
 .bg-pink-1 {
   background-color: #FADBD8 ! important;
 }
@@ -105,6 +108,9 @@
 }
 .border-blue-5 {
   border-color: #1B4F72 ! important;
+}
+.border-dashed {
+  border-style: dashed;
 }
 .clearfix::after {
   content: "";
@@ -189,14 +195,14 @@ a {
 .reviewable {
   padding: 4px;
   margin-bottom: 10px;
-  border: thin solid #5DADE2 ! important;
+  border: thin solid #AED6F1 ! important;
   border-radius: 10px ! important;
-  background-color: #AED6F1 ! important;
+  background-color: #D6EAF8 ! important;
 }
 .reviewable .tag {
-  border: thin solid #5DADE2 ! important;
+  border: thin solid #AED6F1 ! important;
   border-radius: 4px ! important;
-  background-color: #D6EAF8 ! important;
+  background-color: #F3F7FF ! important;
   font-size: 80%;
   float: left;
   padding: 2px 5px 2px 5px;
@@ -226,29 +232,29 @@ a {
   height: 100px;
 }
 .reviewable.selected {
-  border: thin solid #21618C ! important;
+  border: thin solid #5DADE2 ! important;
   border-radius: 10px ! important;
-  background-color: #5DADE2 ! important;
+  background-color: #AED6F1 ! important;
 }
 .reviewable.selected .tag {
-  border: thin solid #21618C ! important;
+  border: thin solid #5DADE2 ! important;
   border-radius: 4px ! important;
 }
 .reviewable.deleted {
-  border-color: #EC7063 ! important;
-  background-color: #F5B7B1 ! important;
-}
-.reviewable.deleted .tag {
-  border: thin solid #F1948A ! important;
-  border-radius: 4px ! important;
+  border-color: #F5B7B1 ! important;
   background-color: #FADBD8 ! important;
 }
+.reviewable.deleted .tag {
+  border: thin solid #F5B7B1 ! important;
+  border-radius: 4px ! important;
+  background-color: #FFF0F0 ! important;
+}
 .reviewable.deleted.selected {
-  border-color: #E74C3C ! important;
-  background-color: #F1948A ! important;
+  border-color: #F1948A ! important;
+  background-color: #F5B7B1 ! important;
 }
 .reviewable.deleted.selected .tag {
-  border: thin solid #EC7063 ! important;
+  border: thin solid #F1948A ! important;
   border-radius: 4px ! important;
 }
 .reviewable.editing img {

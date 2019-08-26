@@ -5,12 +5,12 @@
     padding: 4px;
     margin-bottom: 10px;
 
-    .bordered(10px, thin, solid, @blue-3);
-    .background(@blue-2);
+    .bordered(10px, thin, solid, @blue-2);
+    .background(@blue-1);
 
     .tag {
-        .bordered(4px, thin, solid, @blue-3);
-        .background(@blue-1);
+        .bordered(4px, thin, solid, @blue-2);
+        .background(@blue-0);
         font-size: 80%;
         float: left;
         padding: 2px 5px 2px 5px;
@@ -47,11 +47,11 @@
     }
 
     &.selected {
-        .bordered(10px, thin, solid, @blue-4);
-        .background(@blue-3);
+        .bordered(10px, thin, solid, @blue-3);
+        .background(@blue-2);
 
         .tag {
-            .bordered(4px, thin, solid, @blue-4);
+            .bordered(4px, thin, solid, @blue-3);
         }
 
         &.editing {
@@ -59,20 +59,20 @@
     }
 
     &.deleted {
-        border-color: @pink-4 ! important;
-        background-color: @pink-2 ! important;
+        border-color: @pink-2 ! important;
+        background-color: @pink-1 ! important;
 
         .tag {
-            .bordered(4px, thin, solid, @pink-3);
-            .background(@pink-1);
+            .bordered(4px, thin, solid, @pink-2);
+            .background(@pink-0);
         }
 
         &.selected {
-            border-color: @pink-5 ! important;
-            background-color: @pink-3 ! important;
+            border-color: @pink-3 ! important;
+            background-color: @pink-2 ! important;
 
             .tag {
-                .bordered(4px, thin, solid, @pink-4);
+                .bordered(4px, thin, solid, @pink-3);
             }
         }
     }

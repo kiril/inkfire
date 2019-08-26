@@ -4,7 +4,7 @@
 <br>
 
 {{#each batches}}
-  <div class="mb-3 mr-3 py-2 px-3 border border-pink-2 rounded w-25 float-left bg-pink-0 batch">
+  <div class="mb-3 mr-3 py-2 px-3 border border-blue-2 rounded w-25 float-left bg-blue-1 batch">
     <a href="/batch/{{_id}}" class="font-weight-medium">{{when}}</a>
     <div class="small">
       <i class="fas small fa-{{#if complete}}check text-success{{/if}}{{#if failed}}bomb text-danger{{/if}}{{#if loaded}}hourglass-half text-info{{/if}}{{#if active}}hourglass-start text-warning{{/if}}{{#if started}}hourglass-start text-info{{/if}}{{#if trained}}hourglass-end text-info{{/if}}"></i> &nbsp;
