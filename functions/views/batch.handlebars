@@ -3,10 +3,10 @@
   <script src="/static/page/batch.js"></script>
   <link rel="stylesheet" href="/static/page/batch.css">
 
-  <div id="batchId" class="small text-secondary mb-3">{{batch._id}}</div>
+  <div id="batchId" class="small text-pink-3 mb-3">{{batch._id}}</div>
 
   <div class="mb-3">
-    <div class="rounded border p-3 small float-left mr-3">
+    <div class="rounded border bg-blue-1 border-blue-2 p-3 small float-left mr-3">
       <div class="mb-1"><span class="text-mono font-weight-bold text-uppercase">{{batch.status}}</span></div>
       <div>
         <b>Training Count</b>: {{comma batch.stats.training}}
@@ -20,7 +20,7 @@
     </div>
 
 
-    <div class="rounded border mr-3 p-3 float-left">
+    <div class="rounded border mr-3 p-3 border-blue-2 bg-blue-1 float-left">
       <h6 class="font-weight-bold">Results</h6>
       {{#if batch.results}}
         <div class="small"><span class="font-weight-bold">Loss:</span> <span class="text-mono">{{pct batch.results.loss 1}}</span></div>
@@ -28,9 +28,9 @@
       {{/if}}
     </div>
 
-    <div class="rounded border mr-3 p-3 float-left">
+    <div class="rounded border border-blue-2 bg-blue-1 mr-3 p-3 float-left">
       <h6 class="font-weight-bold">Tags</h6>
-      <div style="overflow:scroll;max-height:70px;width:150px;" class="border bg-white p-1">
+      <div style="overflow:scroll;max-height:70px;width:150px;" class="border border-blue-2 bg-white p-1">
         {{#each batch.results.backtest}}
           <div class="small">
             <div class="small inline w-75 font-weight-bold">{{tag}}</div> <span class="text-mono">{{pct results.accuracy 0}}</span>

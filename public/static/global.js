@@ -207,7 +207,7 @@ function setHashParameters(params) {
 }
 
 function clearHashParameters() {
-    history.pushState({}, "Cleared", "#");
+    history.replaceState({}, "Cleared", "");
 }
 
 function hashParameter(key) {
@@ -257,6 +257,7 @@ function goToResults() {
 }
 
 function scrollToTop() {
+    clearHashParameters();
     $('html,body').animate({scrollTop: 0});
 }
 

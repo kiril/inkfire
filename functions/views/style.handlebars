@@ -2,7 +2,7 @@
 
 <h2>{{name}}</h2>
 
-<div class="border bg-white rounded p-3 my-4">
+<div class="border border-pink-2 bg-pink-0 rounded p-3 my-4">
   <div id="status" class="text-uppercase text-mono{{#if deleted}} text-danger{{else}} text-info{{/if}}">{{style.status}}</div>
   {{style.count}} images tagged <a href="/style/{{name}}/review">review</a> &middot; <a href="/classify?style={{name}}">classify</a>
   <div class="mt-3">
@@ -16,7 +16,7 @@
   <div class="">
     <div class="mb-2">Examples:</div>
     {{#each images}}
-      <a class="inline mr-2 border border-dark rounded bg-white p-2 float-left" href="/image/{{id}}"><img width="100" class="rounded" src="https://storage.googleapis.com/inkstory/corpus/{{id}}.jpg"/></a>
+      <a class="inline mr-2 border border-pink-4 rounded bg-pink-0 p-2 float-left" href="/image/{{id}}"><img width="100" class="rounded" src="https://storage.googleapis.com/inkstory/corpus/{{id}}.jpg"/></a>
     {{/each}}
     <div class="clearfix"></div>
   </div>

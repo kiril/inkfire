@@ -69,6 +69,35 @@ def read_xml_at(path):
     xml = etree.fromstring(raw)
     return dataset_util.recursive_parse_xml_to_dict(xml)
 
+def to_xml_content(val):
+    return val if val is str else ('1' if val else '0') if val is bool else str(val)
+
+def _to_xml(outer, val):
+    if val is dict:
+        for k, v in val.items():
+            for val in (v if v is list else [v]):
+                node = etree.SubElement(outer, k)
+            if val is dict:
+                for sub_k, sub_v in val.items():
+                    _to_xml(node, sub_v)
+                pass
+            else:
+                node.text = to_xml_content(v)
+
+def to_xml(x):
+    assert len(d) == 1
+    for key, value in d.items():
+        root = etree.Element(key)
+        _to_xml(root, value)
+        return root
+
+def annotation_to_xml(annotation):
+    if 'annotation' not in annotation:
+        annotation = {'annnotation': annotation}
+    else:
+        assert len(annotation) == 1
+    return to_xml(annotation)
+
 def get_corpus_record(image_id):
     pass
 
